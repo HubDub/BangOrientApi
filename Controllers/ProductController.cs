@@ -95,14 +95,66 @@ namespace BangOrientAPI.Controllers
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public IActionResult Put(int id, [FromBody] Product product)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != product.ProductId)
+            {
+                return BadRequest(ModelState);
+            }
+
+            context.Product.Update(product);
+            try
+            {
+                context.SaveChanges();
+
+            }
+            catch (DbUpdateException)
+            {
+                if (ProductExists(product.ProductId))
+                {
+                    return new StatusCodeResult(StatusCodes.Status409Conflict);
+                }
+                else
+                {
+                    throw;
+
+                }
+            }
+            return Ok(product);
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id, [FromBody] Product product)
         {
+            
+            if (id != product.ProductId)
+            {
+                return BadRequest(ModelState);
+            }
+
+            context.Product.Remove(product);
+            try 
+            {
+                context.SaveChanges();
+            }
+            catch (DbUpdateException)
+            {
+                if (ProductExists(product.ProductId))
+                {
+                    return new StatusCodeResult(StatusCodes.Status409Conflict);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return Ok(product);
         }
             private bool ProductExists(int id)
         {

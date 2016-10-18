@@ -12,7 +12,8 @@ namespace BangOrientAPI.Controllers
 {
     [ProducesAttribute("application/json")]  //this tells it to only produce json
     // [Route("api/[controller]")]
-    [Route("[controller]")]
+    [Route("[controller]")] //should this say [Route("[customer]")]?
+    //routing maps incoming requests to route handlers and generates URLs used in responses. generally an app has a single collection of routes and is processed in order. requests look for a match in the route collection by URL matching. Routing is connected to middleware pipeline by the RouterMiddleware class. in our app MVC connects it.
     public class CustomersController : Controller
     {
         private BangazonContext context;
@@ -95,14 +96,66 @@ namespace BangOrientAPI.Controllers
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public IActionResult Put(int id, [FromBody] Customer customer)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != customer.CustomerId)
+            {
+                return BadRequest(ModelState);
+            }
+
+            context.Customer.Update(customer);
+            try
+            {
+                context.SaveChanges();
+
+            }
+            catch (DbUpdateException)
+            {
+                if (CustomerExists(customer.CustomerId))
+                {
+                    return new StatusCodeResult(StatusCodes.Status409Conflict);
+                }
+                else
+                {
+                    throw;
+
+                }
+            }
+            return Ok(customer);
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id, [FromBody] Customer customer)
         {
+            
+            if (id != customer.CustomerId)
+            {
+                return BadRequest(ModelState);
+            }
+
+            context.Customer.Remove(customer);
+            try 
+            {
+                context.SaveChanges();
+            }
+            catch (DbUpdateException)
+            {
+                if (CustomerExists(customer.CustomerId))
+                {
+                    return new StatusCodeResult(StatusCodes.Status409Conflict);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return Ok(customer);
         }
             private bool CustomerExists(int id)
         {

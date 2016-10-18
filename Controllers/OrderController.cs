@@ -72,9 +72,9 @@ namespace BangOrientAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            context.Order.Add(order);
             try
             {
+                context.Order.Add(order);
                 context.SaveChanges();
             }
             catch (DbUpdateException)
@@ -95,14 +95,66 @@ namespace BangOrientAPI.Controllers
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public IActionResult Put(int id, [FromBody] Order order)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != order.OrderId)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                context.Order.Update(order);
+                context.SaveChanges();
+
+            }
+            catch (DbUpdateException)
+            {
+                if (OrderExists(order.OrderId))
+                {
+                    return new StatusCodeResult(StatusCodes.Status409Conflict);
+                }
+                else
+                {
+                    throw;
+
+                }
+            }
+            return Ok(order);
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id, [FromBody] Order order)
         {
+            
+            if (id != order.OrderId)
+            {
+                return BadRequest(ModelState);
+            }
+
+            context.Order.Remove(order);
+            try 
+            {
+                context.SaveChanges();
+            }
+            catch (DbUpdateException)
+            {
+                if (OrderExists(order.CustomerId))
+                {
+                    return new StatusCodeResult(StatusCodes.Status409Conflict);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return Ok(order);
         }
             private bool OrderExists(int id)
         {

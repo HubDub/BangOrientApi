@@ -15,20 +15,20 @@ namespace BangOrientAPI
     {
         public static void Main(string[] args)
         {
-            var config = new ConfigurationBuilder()
+            var config = new ConfigurationBuilder() 
                 .AddCommandLine(args)
                 .AddEnvironmentVariables(prefix: "ASPNETCORE_")
                 .Build();
 
-            var host = new WebHostBuilder()
+            var host = new WebHostBuilder() //follows builder pattern to create webhost
                 .UseConfiguration(config)
-                .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
-                .UseStartup<Startup>()
-                .Build();
+                .UseKestrel() //this is particular web server- could use others
+                .UseContentRoot(Directory.GetCurrentDirectory()) //method on webhostbuilder that specifies root directory
+                .UseIISIntegration()  //method on webhostbuilder to host IIS and IIS express
+                .UseStartup<Startup>()  //specifies startup class for app. in startup.cs
+                .Build(); //method builds Iwebhost to host the app
 
-            host.Run();
+            host.Run(); //method that runs app and starts listening for HTTP calls
         }
     }
 }
