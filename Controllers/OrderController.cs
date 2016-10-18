@@ -138,9 +138,9 @@ namespace BangOrientAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            context.Order.Remove(order);
             try 
             {
+                context.Order.Remove(order);
                 context.SaveChanges();
             }
             catch (DbUpdateException)

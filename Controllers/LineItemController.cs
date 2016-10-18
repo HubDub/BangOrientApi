@@ -77,13 +77,40 @@ namespace BangOrientAPI.Controllers
                     throw;
                 }
             }
-            return CreatedAtRoute("GetLineItem", new {id = lineitem.LineItemId }, lineitem);
+            return CreatedAtRoute("GetLineItems", new {id = lineitem.LineItemId }, lineitem);
+        }
+
+        [HttpDeleteAttribute("{id}")]
+        public IActionResult Delete(int id, [FromBody] LineItem lineitem)
+        {
+            if (id != lineitem.LineItemId)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+            context.LineItem.Remove(lineitem);
+            context.SaveChanges();
+            }
+            catch (DbUpdateException)
+            {
+                if (LineItemExists(lineitem.LineItemId))
+                {
+                    return new StatusCodeResult(StatusCodes.Status409Conflict);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return Ok(lineitem);
         }
 
         private bool LineItemExists(int id)
         {
             return context.LineItem.Count(l => l.LineItemId == id) > 0;
         }
+
 
     }
 }
